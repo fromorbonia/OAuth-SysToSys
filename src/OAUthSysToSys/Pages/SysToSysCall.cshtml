@@ -1,0 +1,24 @@
+﻿@page
+@model OAUthSysToSys.Pages.SysToSysCallModel
+@{
+    ViewData["Title"] = "System To System Call";
+}
+
+<h1>System To System Call - Using OAuth Client Credentials Flow</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-2">Logged in Status:</div>
+        <div class="col-2">@Model.AuthStatus</div>
+        <div class="col-2">Access Token:</div>
+        <div class="col-6" id="txtLoginExpires">@Model.AuthAccessToken</div>
+    </div>
+    <div class="row">
+        <div class="col-2">OAuth Call Status:</div>
+        <div class="col-10">@Model.ResResponse</div>
+    </div>
+    <div class="row">
+        <div class="col-2">OAuth Response Content:</div>
+        <div class="col-10"><iframe srcdoc="@Model.ResContent"></iframe></div>
+    </div>
+</div>

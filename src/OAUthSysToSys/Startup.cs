@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis.Options;
 
@@ -29,11 +30,13 @@ namespace OAUthSysToSys
         {
             services.AddRazorPages();
 
+            //Maybe remove and not do an authentication scheme at all here? 
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
+                    //TODO: Custom challanged scheme
                     options.DefaultChallengeScheme = "SysToSys";
                 })
                 .AddCookie(options =>
@@ -41,24 +44,6 @@ namespace OAUthSysToSys
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SameSite = SameSiteMode.Lax;
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                })
-                //.AddOAuth("SysToSys", options =>
-                //{
-                //    options.TokenEndpoint = "https://localhost:5001/token";
-                //    options.ClientId = "my-id-guid";
-                //    options.ClientSecret = "mysimplesecret";
-                //    options.SignInScheme = "client_credentials";
-                //});
-                .AddOpenIdConnect("SysToSys", options =>
-                {
-                    options.Authority = "https://localhost:5001";
-                    options.CallbackPath = "/callback";
-                    options.ClientId = "my-id-guid";
-                    options.ClientSecret = "mysimplesecret";
-                    options.ResponseType = "code";
-                    options.Scope.Clear();
-                    options.Scope.Add( "openid" );
-                    options.SaveTokens = true;
                 });
 
 
