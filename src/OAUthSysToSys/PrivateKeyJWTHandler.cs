@@ -9,15 +9,7 @@ namespace OAUthSysToSys
 {
     public static class PrivateKeyJWTHandler
     {
-        public static string JWKSGenerate(string PublicKeyCERFile)
-        {
-            JsonWebKeySet jwks = new JsonWebKeySet();
-            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
-                new X509SecurityKey(new X509Certificate2(PublicKeyCERFile)));
-            
-            jwks.Keys.Add(jwk);
-            return jwks.ToString();
-        }
+       
 
         public static string ClientAuthJwtCreate(string TokenEndpoint,
             string ClientId,
@@ -45,6 +37,16 @@ namespace OAUthSysToSys
             );
 
             return tokenHandler.WriteToken(securityToken);
+        }
+
+        public static string JWKSGenerate(string PublicKeyCERFile)
+        {
+            JsonWebKeySet jwks = new JsonWebKeySet();
+            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
+                new X509SecurityKey(new X509Certificate2(PublicKeyCERFile)));
+
+            jwks.Keys.Add(jwk);
+            return jwks.ToString();
         }
     }
 }
