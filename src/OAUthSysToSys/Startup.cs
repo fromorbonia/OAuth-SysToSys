@@ -20,10 +20,8 @@ namespace OAUthSysToSys
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<JWKSPublicEndpoint>();
             services.AddRazorPages();
-
-           
-
 
         }
 
@@ -42,8 +40,9 @@ namespace OAUthSysToSys
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseJWKSPublicEndpointMiddleware();
 
+            app.UseStaticFiles();
             app.UseRouting();
 
 
@@ -53,4 +52,5 @@ namespace OAUthSysToSys
             });
         }
     }
+
 }

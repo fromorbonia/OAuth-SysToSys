@@ -361,3 +361,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /src/OAUthSysToSys/testkeypair.cer
+/src/OAUthSysToSys/openssl.cfg
+/src/OAUthSysToSys/testkeypair.key
