@@ -56,7 +56,7 @@ namespace OAUthSysToSys
             JsonSerializerOptions jso = new JsonSerializerOptions() {
                 IgnoreNullValues = true
             };
-            string jwksStr = string.Format("\{ keys: [{0}] \}",  JsonSerializer.Serialize(jwk, jso));
+            string jwksStr = string.Format("{{ keys: [{0}] }}",  JsonSerializer.Serialize(jwk, jso));
             return  jwksStr;
         }
     }
@@ -68,6 +68,7 @@ namespace OAUthSysToSys
             if (context.Request.Path == "/.well-known/jwks.json")
             {
                 context.Response.ContentType = "application/json";
+
                 await context.Response.WriteAsync(PrivateKeyJWTHandler.JWKSGenerate("./testkeypair.cer"));
             }
             else

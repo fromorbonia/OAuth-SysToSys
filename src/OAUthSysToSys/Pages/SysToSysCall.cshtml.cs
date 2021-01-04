@@ -53,21 +53,30 @@ namespace OAUthSysToSys.Pages
 
             TokenResponse response = await client.RequestClientCredentialsTokenAsync(cctr);
 
-            this.AuthStatus = response.HttpStatusCode.ToString();
-            this.AuthAccessToken = response.AccessToken;
+            if ((response != null)
+                && (!response.IsError))
+            {
+                this.AuthStatus = response.HttpStatusCode.ToString();
+                this.AuthAccessToken = response.AccessToken;
 
-            //************************************************************
-            //Now use the access token to make an arbitrary protected call
+                //************************************************************
+                //Now use the access token to make an arbitrary protected call
 
-            HttpRequestMessage req = new HttpRequestMessage(System.Net.Http.HttpMethod.Get,
-                "https://localhost:5001/diagnostics");
+                HttpRequestMessage req = new HttpRequestMessage(System.Net.Http.HttpMethod.Get,
+                    "https://localhost:5001/diagnostics");
 
-            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", response.AccessToken);
+                req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", response.AccessToken);
 
-            HttpResponseMessage oauthResponse = await new HttpClient().SendAsync(req);
+                HttpResponseMessage oauthResponse = await new HttpClient().SendAsync(req);
 
-            this.ResResponse = oauthResponse.StatusCode.ToString();
-            this.ResContent = await oauthResponse.Content.ReadAsStringAsync();
+                this.ResResponse = oauthResponse.StatusCode.ToString();
+                this.ResContent = await oauthResponse.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                this.ResResponse = string.Format("Failed - {0}",
+                    (response != null ? response.Error : "Could not construct response object"));
+            }
         }
 
     }
