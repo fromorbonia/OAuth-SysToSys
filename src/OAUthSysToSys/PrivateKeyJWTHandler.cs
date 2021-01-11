@@ -8,16 +8,23 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 
 namespace OAUthSysToSys
 {
     public static class PrivateKeyJWTHandler
     {
-       
 
         public static string ClientAuthJwtCreate(string TokenEndpoint,
             string ClientId,
             string PrivateKeyPFXFile)
+        {
+            return ClientAuthJwtCreate(TokenEndpoint, ClientId, new X509Certificate2(PrivateKeyPFXFile));
+        }
+
+        public static string ClientAuthJwtCreate(string TokenEndpoint,
+            string ClientId,
+            X509Certificate2 Cert)
         {
             //Example taken from:  https://www.scottbrady91.com/OAuth/Removing-Shared-Secrets-for-OAuth-Client-Authentication
 
@@ -35,9 +42,10 @@ namespace OAUthSysToSys
                       new Claim("sub", ClientId),
                       new Claim("jti", Guid.NewGuid().ToString()) //jti is required in the OIDC standard
                   }),
-                // sign with the private key (using RS256 for IdentityServer)
+
+                // sign with the private key (using RS256 for IdentityServer, or RS512 for NHS Digital)
                 signingCredentials: new SigningCredentials(
-                  new X509SecurityKey(new X509Certificate2(PrivateKeyPFXFile)), "RS256")
+                  new X509SecurityKey(Cert), "RS512")
             );
 
             return tokenHandler.WriteToken(securityToken);
@@ -45,31 +53,78 @@ namespace OAUthSysToSys
 
         public static string JWKSGenerate(string PublicKeyCERFile)
         {
-            //JsonWebKeySet jwks = new JsonWebKeySet();
-            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
-                new X509SecurityKey(new X509Certificate2(PublicKeyCERFile)));
+            return JWKSGenerate(new X509Certificate2(PublicKeyCERFile));
+        }
 
-            //jwks.Keys.Add(jwk);
+        public static string JWKSGenerate(X509Certificate2 Cert)
+        {
             
-            //var keys = new[] { jwk };
+            JsonWebKeySet jwks = new JsonWebKeySet();
+
+            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
+                new X509SecurityKey(Cert),
+                true);
+
+            jwks.Keys.Add(jwk);
 
             JsonSerializerOptions jso = new JsonSerializerOptions() {
-                IgnoreNullValues = true
+                IgnoreNullValues = true,
+                PropertyNamingPolicy = new JsonNamingPolicyToLowerCase(),
             };
-            string jwksStr = string.Format("{{ keys: [{0}] }}",  JsonSerializer.Serialize(jwk, jso));
+
+            string jwksStr = JsonSerializer.Serialize(jwks, jso);
             return  jwksStr;
+        }
+
+        /// <summary>
+        /// Wrappers loading the certificate either from a file in the project or from a string of the certificate
+        /// </summary>
+        /// <param name="Config"></param>
+        /// <returns></returns>
+        public static X509Certificate2 CertifcateForPrivatePublicKeyPair(IConfiguration Config)
+        {
+            X509Certificate2 xc;
+
+            //Use of EphemeralKeySet is:
+            // - sensible to keep it all in memory
+            // - important with Azure Web App deploys, otherwise the default permissions don't allow writing of keys to disk
+
+
+            if (Config["TestAppPriv"] != null)
+            {
+                //The certificate is loaded into Azure KeyVault, and pulling it down via the 
+                //Configuration call, retrieve the full certificate including private key
+                //as a base64 string
+                string ppk = Config["TestAppPriv"];
+                byte[] ppkBA = Convert.FromBase64String(ppk);
+                xc = new X509Certificate2(ppkBA, "", X509KeyStorageFlags.EphemeralKeySet);
+            }
+            else
+            {
+                xc = new X509Certificate2(Config["JWT:PFXFile"], "", X509KeyStorageFlags.EphemeralKeySet);
+            }
+
+            return xc;
         }
     }
 
     public class JWKSPublicEndpoint : IMiddleware
     {
+        private readonly IConfiguration _configuration;
+
+        public JWKSPublicEndpoint(IConfiguration Config)
+        {
+            _configuration = Config;
+        }
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             if (context.Request.Path == "/.well-known/jwks.json")
             {
                 context.Response.ContentType = "application/json";
 
-                await context.Response.WriteAsync(PrivateKeyJWTHandler.JWKSGenerate("./testkeypair.cer"));
+                X509Certificate2 xc = PrivateKeyJWTHandler.CertifcateForPrivatePublicKeyPair(_configuration);
+
+                await context.Response.WriteAsync(PrivateKeyJWTHandler.JWKSGenerate(xc));
             }
             else
             {
@@ -88,4 +143,11 @@ namespace OAUthSysToSys
         }
     }
 
+    public class JsonNamingPolicyToLowerCase : JsonNamingPolicy
+    {
+        public override string ConvertName(string name)
+        {
+            return name.ToLower();
+        }
+    }
 }

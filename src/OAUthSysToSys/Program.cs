@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Azure.Identity;
 
 namespace OAUthSysToSys
 {
@@ -18,6 +19,15 @@ namespace OAUthSysToSys
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+#if !DEBUG
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    var keyVaultEndpoint = new Uri("https://oauthsystosysvault.vault.azure.net/");
+                    config.AddAzureKeyVault(
+                        keyVaultEndpoint,
+                        new DefaultAzureCredential());
+                })
+#endif
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
