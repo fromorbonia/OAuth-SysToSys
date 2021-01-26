@@ -13,9 +13,18 @@ namespace OAUthSysToSys.Pages
     //[Authorize]
     public class SysToSysCallModel : PageModel
     {
+
+
+        //*******************************************************************************
+        // Model properties - only used to display values in this example
+
         public string AuthStatus { get; set; }
 
+        /// <summary>
+        /// NEVER display an Access Token in a normal application!
+        /// </summary>
         public string AuthAccessToken { get; set; }
+
         public string AuthEndPoint { get; set; }
 
         public string ResResponse { get; set; }
@@ -32,6 +41,7 @@ namespace OAUthSysToSys.Pages
         {
             _configuration = Config;
         }
+
         public async Task OnGet()
         {
             try
@@ -48,16 +58,19 @@ namespace OAUthSysToSys.Pages
                 };
                 this.AuthEndPoint = cctr.Address;
 
+
+                //*******************************************************************************
+                //Retrieve the certificate
                 X509Certificate2 xc = PrivateKeyJWTHandler.CertifcateForPrivatePublicKeyPair(_configuration);
 
-
+                //*******************************************************************************
                 //Create and configure the Authentication JWT
                 cctr.ClientAssertion = new ClientAssertion
                 {
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = PrivateKeyJWTHandler.ClientAuthJwtCreate(cctr.Address,
                             cctr.ClientId,
-                            xc) //_configuration["JWT:PrivateKeyPFXFile"])
+                            xc)
                 };
 
                 TokenResponse response = await client.RequestClientCredentialsTokenAsync(cctr);
@@ -69,7 +82,7 @@ namespace OAUthSysToSys.Pages
 
                     //************************************************************
                     //NEVER show the Access Token in a real application
-                    //For getting to grips with OAuth it is useful to see though
+                    //  - Getting to grips with OAuth, however, it is useful to see
                     this.AuthAccessToken = response.AccessToken;
 
                     //************************************************************

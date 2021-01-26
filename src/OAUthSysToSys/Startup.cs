@@ -20,7 +20,11 @@ namespace OAUthSysToSys
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //*******************************************************************************
+            //Add a service to manage the JWKS endpoint
+            //- Only include this if you want to publish, in this application, your JWKS file
             services.AddTransient<JWKSPublicEndpoint>();
+            
             services.AddRazorPages();
 
         }
@@ -40,6 +44,10 @@ namespace OAUthSysToSys
             }
 
             app.UseHttpsRedirection();
+
+            //*******************************************************************************
+            //Initiailse the code that will handle a reqest for a JWKS
+            //- Only include this if you want to publish, in this application, your JWKS file
             app.UseJWKSPublicEndpointMiddleware();
 
             app.UseStaticFiles();

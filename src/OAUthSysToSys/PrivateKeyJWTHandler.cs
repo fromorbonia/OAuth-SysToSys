@@ -12,6 +12,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace OAUthSysToSys
 {
+    /// <summary>
+    /// Class handling creating and signing a Client Authentication JWT
+    /// </summary>
     public static class PrivateKeyJWTHandler
     {
 
@@ -51,30 +54,6 @@ namespace OAUthSysToSys
             return tokenHandler.WriteToken(securityToken);
         }
 
-        public static string JWKSGenerate(string PublicKeyCERFile)
-        {
-            return JWKSGenerate(new X509Certificate2(PublicKeyCERFile));
-        }
-
-        public static string JWKSGenerate(X509Certificate2 Cert)
-        {
-            
-            JsonWebKeySet jwks = new JsonWebKeySet();
-
-            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
-                new X509SecurityKey(Cert),
-                true);
-
-            jwks.Keys.Add(jwk);
-
-            JsonSerializerOptions jso = new JsonSerializerOptions() {
-                IgnoreNullValues = true,
-                PropertyNamingPolicy = new JsonNamingPolicyToLowerCase(),
-            };
-
-            string jwksStr = JsonSerializer.Serialize(jwks, jso);
-            return  jwksStr;
-        }
 
         /// <summary>
         /// Wrappers loading the certificate either from a file in the project or from a string of the certificate
@@ -108,6 +87,9 @@ namespace OAUthSysToSys
         }
     }
 
+
+    #region Middleware code for publishing a JWKS endpoint
+
     public class JWKSPublicEndpoint : IMiddleware
     {
         private readonly IConfiguration _configuration;
@@ -124,7 +106,7 @@ namespace OAUthSysToSys
 
                 X509Certificate2 xc = PrivateKeyJWTHandler.CertifcateForPrivatePublicKeyPair(_configuration);
 
-                await context.Response.WriteAsync(PrivateKeyJWTHandler.JWKSGenerate(xc));
+                await context.Response.WriteAsync(JWKSGenerate(xc));
             }
             else
             {
@@ -132,6 +114,33 @@ namespace OAUthSysToSys
             }
 
         }
+
+        public static string JWKSGenerate(string PublicKeyCERFile)
+        {
+            return JWKSGenerate(new X509Certificate2(PublicKeyCERFile));
+        }
+
+        public static string JWKSGenerate(X509Certificate2 Cert)
+        {
+
+            JsonWebKeySet jwks = new JsonWebKeySet();
+
+            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
+                new X509SecurityKey(Cert),
+                true);
+
+            jwks.Keys.Add(jwk);
+
+            JsonSerializerOptions jso = new JsonSerializerOptions()
+            {
+                IgnoreNullValues = true,
+                PropertyNamingPolicy = new JsonNamingPolicyToLowerCase(),
+            };
+
+            string jwksStr = JsonSerializer.Serialize(jwks, jso);
+            return jwksStr;
+        }
+
     }
 
     public static class MiddlewareExtensions
@@ -150,4 +159,6 @@ namespace OAUthSysToSys
             return name.ToLower();
         }
     }
+
+    #endregion
 }

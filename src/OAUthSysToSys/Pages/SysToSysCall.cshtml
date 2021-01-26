@@ -8,25 +8,24 @@
 
 <div class="container">
     <div class="row"></div>
-    <div class="row">
-        <div class="col-4"></div>
-        <div class="col-8 alert-warning">--- LEARNING ONLY - NEVER EVER display an Access Token ---</div>
-    </div>
-    <div class="row">
+    <div class="row mb-3 border rounded border-success">
         <div class="col-2">Logged in Status:</div>
         <div class="col-2">@Model.AuthStatus</div>
+    </div>
+    <div class="row mb-3 border rounded">
         <div class="col-2">Access Token:</div>
         <div class="col-6">@Model.AuthAccessToken</div>
+        <div class="col-4 alert-warning">--- LEARNING ONLY - NEVER EVER display an Access Token ---</div>
     </div>
-    <div class="row">
+    <div class="row mb-3 border rounded">
         <div class="col-2">Token End Point:</div>
         <div class="col-10">@Model.AuthEndPoint</div>
     </div>
-    <div class="row">
+    <div class="row mb-3 border rounded">
         <div class="col-2">Any Errors:</div>
         <div class="col-10">@Model.ErrText</div>
     </div>
-    <div class="row">
+    <div class="row mb-3 border rounded">
         <div class="col-2">API Call Status:</div>
         <div class="col-10">@Model.ResResponse</div>
     </div>
