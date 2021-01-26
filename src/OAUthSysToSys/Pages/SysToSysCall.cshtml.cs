@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace OAUthSysToSys.Pages
 {
-    //[Authorize]
     public class SysToSysCallModel : PageModel
     {
 

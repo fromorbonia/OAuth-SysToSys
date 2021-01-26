@@ -12,10 +12,10 @@
         <div class="col-2">Logged in Status:</div>
         <div class="col-2">@Model.AuthStatus</div>
     </div>
-    <div class="row mb-3 border rounded">
+    <div class="row mb-3 border rounded border-danger">
         <div class="col-2">Access Token:</div>
-        <div class="col-6">@Model.AuthAccessToken</div>
-        <div class="col-4 alert-warning">--- LEARNING ONLY - NEVER EVER display an Access Token ---</div>
+        <div class="col-4">@Model.AuthAccessToken</div>
+        <div class="col-6 alert-warning"><p>--- LEARNING ONLY ---</p><p>NEVER EVER display an Access Token</p></div>
     </div>
     <div class="row mb-3 border rounded">
         <div class="col-2">Token End Point:</div>
