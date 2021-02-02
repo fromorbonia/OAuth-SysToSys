@@ -56,7 +56,7 @@ namespace OAUthSysToSys
 
 
         /// <summary>
-        /// Wrappers loading the certificate either from a file in the project or from a string of the certificate
+        /// Wrappers loading the certificate either from a file in the project or from the Configuration extension as a string of the certificate
         /// </summary>
         /// <param name="Config"></param>
         /// <returns></returns>
@@ -69,17 +69,19 @@ namespace OAUthSysToSys
             // - important with Azure Web App deploys, otherwise the default permissions don't allow writing of keys to disk
 
 
-            if (Config["TestAppPriv"] != null)
+            if (Config["JWT:PubPrivateKeyBase64"] != null)
             {
-                //The certificate is loaded into Azure KeyVault, and pulling it down via the 
-                //Configuration call, retrieve the full certificate including private key
+                //The certificate is loaded into Azure KeyVault. Pulling it down via the 
+                //Configuration call, which retrieves the full certificate including private key
                 //as a base64 string
-                string ppk = Config["TestAppPriv"];
+                string ppk = Config["JWT:PubPrivateKeyBase64"];
                 byte[] ppkBA = Convert.FromBase64String(ppk);
                 xc = new X509Certificate2(ppkBA, "", X509KeyStorageFlags.EphemeralKeySet);
             }
             else
             {
+                //In some circumstances a PFX File loaded from file could be used
+                //It is not recommended to store private keys on a disk, but kept in memory
                 xc = new X509Certificate2(Config["JWT:PFXFile"], "", X509KeyStorageFlags.EphemeralKeySet);
             }
 
@@ -127,13 +129,15 @@ namespace OAUthSysToSys
 
             JsonWebKey jwk = JsonWebKeyConverter.ConvertFromX509SecurityKey(
                 new X509SecurityKey(Cert),
+                //In this example representAsRsaKey must be true, otherwise NHS Digital doesn't understand the JWK format
                 true);
 
             jwks.Keys.Add(jwk);
 
+            //In this example - the NHS Digital processing of the JWK is case sensitive
             JsonSerializerOptions jso = new JsonSerializerOptions()
             {
-                IgnoreNullValues = true,
+                IgnoreNullValues = true, //Tidys up the JWKS output a bit
                 PropertyNamingPolicy = new JsonNamingPolicyToLowerCase(),
             };
 

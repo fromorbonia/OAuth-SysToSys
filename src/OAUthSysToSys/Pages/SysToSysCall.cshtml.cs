@@ -48,22 +48,25 @@ namespace OAUthSysToSys.Pages
                 //Example based on:  https://www.scottbrady91.com/OAuth/Removing-Shared-Secrets-for-OAuth-Client-Authentication
 
                 var client = new HttpClient();
+
+                //*******************************************************************************
+                //Create and configure the Client Credentials endpoint details
                 ClientCredentialsTokenRequest cctr = new ClientCredentialsTokenRequest
                 {
                     Address = _configuration["OIDC:TokenEndpoint"],
                     GrantType = OidcConstants.GrantTypes.ClientCredentials,
-                    Scope = "api1",
+                    //Scopes are not needed for this example 
                     ClientId = _configuration["OIDC:ClientId"],
                 };
                 this.AuthEndPoint = cctr.Address;
 
 
                 //*******************************************************************************
-                //Retrieve the certificate
+                //Retrieve the certificate which contains the private key for signing
                 X509Certificate2 xc = PrivateKeyJWTHandler.CertifcateForPrivatePublicKeyPair(_configuration);
 
                 //*******************************************************************************
-                //Create and configure the Authentication JWT
+                //Add a new Client Authentication JWT to the Client Credentials config
                 cctr.ClientAssertion = new ClientAssertion
                 {
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
@@ -72,6 +75,8 @@ namespace OAUthSysToSys.Pages
                             xc)
                 };
 
+                //*******************************************************************************
+                //Make the client credentials call to get the access token
                 TokenResponse response = await client.RequestClientCredentialsTokenAsync(cctr);
 
                 if ((response != null)
@@ -92,7 +97,7 @@ namespace OAUthSysToSys.Pages
                     req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", response.AccessToken);
 
                     //************************************************************
-                    //The follow headers are specific to NHS Digital calls
+                    //The following headers are specific to NHS Digital calls
                     req.Headers.Add("X-Request-ID", (new Guid()).ToString());
                     req.Headers.Add("X-Correlation-ID", Guid.NewGuid().ToString());
                     req.Headers.Add("NHSD-Session-URID", "555021935107");

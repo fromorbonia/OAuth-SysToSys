@@ -1,88 +1,39 @@
-# Project Title
+﻿# Example: Web Server App Authenticating with NHS Digital OAuth
 
-One Paragraph of project description goes here
+This example shows system to system authentication (OAuth Client Credentials flow) using Private Key JWT OAuth Client Authentication model, and how to publish your own JWKS endpoint with simple custom middleware.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+See - full example workthrough here: [Medium - Example Web Server App Authenticating with NHS Digital OAuth]()
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+This project was created with Visual Studio 2019, and is an ASP.NET Core 3 Web Application
 
-```
-Give examples
-```
+The project is also demonstrating publishing a JWKS endpoint, and I chose to deploy this as an Azure Web App using Azure Key Vault to store the private / public key pair
 
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Requires an Azure subscription if using the Azure Web Publish and Azure Key Vault
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* Visual Studio 2019 - ASP.NET Core 3 and Razor pages
+* NuGet package:
+    * System.IdentityModel.Tokens.Jwt - Microsoft standard JWT libraries
+    * IdentityModel - helper library for OAuth and OIDC
+* NuGet packages for using Azure Key Vault:
+    *  Azure.Identity
+    *  Azure.Extensions.AspNetCore.Configuration.Secrets
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This is just code brought together to help others get started quickly, nothing unique. Licensed under Zero-Clause BSD - see [LICENSE.md](LICENSE.md)
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* Main code segments, using the IdentityModel, were based on the code in Scott Brady’s blog: https://www.scottbrady91.com/OAuth/Removing-Shared-Secrets-for-OAuth-Client-Authentication
+* The middleware for publishing the JWKS endpoint was just applying a bit of logic and a number of baseline Microsoft documents
+* Billie Thompson - README template - [PurpleBooth](https://github.com/PurpleBooth)
 

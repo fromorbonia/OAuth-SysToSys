@@ -14,11 +14,13 @@ namespace OAUthSysToSys
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+                Host.CreateDefaultBuilder(args)
 
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    var keyVaultEndpoint = new Uri("https://oauthsystosysvault.vault.azure.net/");
+                    IConfiguration configBuilt = config.Build();
+
+                    var keyVaultEndpoint = new Uri(configBuilt["VaultUri"]);
                     config.AddAzureKeyVault(
                         keyVaultEndpoint,
                         new DefaultAzureCredential());
