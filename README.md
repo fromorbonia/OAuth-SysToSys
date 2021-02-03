@@ -4,7 +4,7 @@ This example shows system to system authentication (OAuth Client Credentials flo
 
 ## Getting Started
 
-See - full example workthrough here: [Medium - Example Web Server App Authenticating with NHS Digital OAuth]()
+See - full example workthrough here: [Medium - Example Web Server App Authenticating with NHS Digital OAuth](https://aubyncrawford.medium.com/example-web-server-app-authenticating-with-nhs-digital-oauth-57f58f3fb62f)
 
 ### Prerequisites
 
