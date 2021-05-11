@@ -68,6 +68,7 @@ namespace OAUthSysToSys
             // - sensible to keep it all in memory
             // - important with Azure Web App deploys, otherwise the default permissions don't allow writing of keys to disk
 
+            //Use of MachineKeySet fixes a known issue with Azure Apps resulting in a Bad Data error in FilterPFXStore 
 
             if (Config["JWT:PubPrivateKeyBase64"] != null)
             {
@@ -76,13 +77,13 @@ namespace OAUthSysToSys
                 //as a base64 string
                 string ppk = Config["JWT:PubPrivateKeyBase64"];
                 byte[] ppkBA = Convert.FromBase64String(ppk);
-                xc = new X509Certificate2(ppkBA, "", X509KeyStorageFlags.EphemeralKeySet);
+                xc = new X509Certificate2(ppkBA, "", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
             }
             else
             {
                 //In some circumstances a PFX File loaded from file could be used
                 //It is not recommended to store private keys on a disk, but kept in memory
-                xc = new X509Certificate2(Config["JWT:PFXFile"], "", X509KeyStorageFlags.EphemeralKeySet);
+                xc = new X509Certificate2(Config["JWT:PFXFile"], "", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
             }
 
             return xc;
